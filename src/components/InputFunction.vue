@@ -1,227 +1,149 @@
 <template>
-  <section>
-    <!-- <div class="row"> -->
-    <div class="alert" style="width: 50%" v-if="errorMsg">
-      <span class="closebtn" @click="errorMsg = null">&times;</span>
-      <strong>Error!</strong> {{ errorMsg }}
-    </div>
+  <section class="input-function">
     <fieldset>
       <legend>Input Function:</legend>
       <form @submit.prevent>
-        <div class="row">
-          <div class="column" style="width: 35%">
+        <!-- SIMPLE + COMPLEX TERM PANELS -->
+        <div class="layout">
+          <!-- SIMPLE TERM -->
+          <section class="panel simple-term-panel">
             <fieldset>
               <legend>Simple Term:</legend>
-              <div class="row">
-                <div class="column">
-                  <label for="coefficient">Coefficient: </label>
-                  <input
-                    type="number"
-                    id="coefficient"
-                    min="-10e10"
-                    max="10e10"
-                    v-model="simpleTerm.coefficient"
-                  />
+              <div class="layout">
+                <div class="panel">
+                  <label for="coefficient">Coefficient:</label>
+                  <input type="number" id="coefficient" min="-10e10" max="10e10" v-model="simpleTerm.coefficient" />
                 </div>
-                <div class="column">
-                  <label for="degree">Degree: </label>
-                  <input
-                    type="number"
-                    id="degree"
-                    min="-10e10"
-                    max="10e10"
-                    v-model="simpleTerm.degree"
-                  />
+                <div class="panel">
+                  <label for="sdegree">Degree:</label>
+                  <input type="number" id="sdegree" min="-10e10" max="10e10" v-model="simpleTerm.degree" />
                 </div>
               </div>
-              <div class="row">
-                <div class="column" style="width: 100%">
-                  <div>
-                    <label class="tooltip"
-                      >New:<span class="tooltiptext">{{
-                        newOrExistingToolTip
-                      }}</span
-                      ><input
-                        type="checkbox"
-                        v-model="addNewSimpleTermSelected"
-                    /></label>
+              <div class="layout">
+                <div class="panel">
+                  <label class="tooltip">
+                    New:
+                    <span class="tooltiptext">{{ newOrExistingToolTip }}</span>
+                    <input type="checkbox" v-model="addNewSimpleTermSelected" />
+                  </label>
+                  <div class="button-row">
                     <button @click="addTerm('Simple')">Add</button>
                     <button @click="reset('Simple')">Reset</button>
                   </div>
                 </div>
               </div>
             </fieldset>
-          </div>
-          <div class="column" style="width: 61%">
+          </section>
+          <!-- COMPLEX TERM -->
+          <section class="panel complex-term-panel">
             <fieldset>
               <legend>Complex Term:</legend>
-              <div class="row">
-                <div class="column" style="width: 30%">
-                  <label for="multiplier">Multiplier: </label>
-                  <select
-                    id="multiplier"
-                    @change="multiplierChanged"
-                    ref="multiplier"
-                  >
+              <div class="layout">
+                <div class="panel">
+                  <label for="multiplier">Multiplier:</label>
+                  <select id="multiplier" @change="multiplierChanged" ref="multiplier">
                     <option v-for="(t, i) in listOfTerms" :key="t" :value="i">
                       {{ `Expr${zeroFill(i + 1)}` }}
                     </option>
                   </select>
                 </div>
-                <div class="column" style="width: 30%">
+                <div class="panel">
                   <label for="allFunctions">Function:</label>
-                  <select
-                    id="allFunctions"
-                    @change="builtInFunctionChanged"
-                    ref="allFunctions"
-                  >
-                    <option
-                      v-for="(f, idx) of allFunctions"
-                      :key="f"
-                      :value="idx"
-                      style="font-style: italic"
-                    >
+                  <select id="allFunctions" @change="builtInFunctionChanged" ref="allFunctions">
+                    <option v-for="(f, idx) in allFunctions" :key="f" :value="idx" style="font-style: italic">
                       f(x):{{ f }}
                     </option>
                   </select>
                 </div>
-                <div class="column" style="width: 30%">
-                  <label for="argument">Argument: </label>
-                  <select
-                    id="argument"
-                    @change="argumentChanged"
-                    ref="argument"
-                  >
+                <div class="panel">
+                  <label for="argument">Argument:</label>
+                  <select id="argument" @change="argumentChanged" ref="argument">
                     <option v-for="(t, i) in listOfTerms" :key="t" :value="i">
                       {{ `Expr${zeroFill(i + 1)}` }}
                     </option>
                   </select>
                 </div>
               </div>
-              <div class="row">
-                <div class="column" style="width: 25%">
-                  <label for="degree">Degree: </label>
-                  <input
-                    type="number"
-                    id="degree"
-                    min="-10e10"
-                    max="10e10"
-                    v-model="complexTerm.degree"
-                  />
+              <div class="layout">
+                <div class="panel small">
+                  <label for="cdegree">Degree:</label>
+                  <input type="number" id="cdegree" min="-10e10" max="10e10" v-model="complexTerm.degree" />
                 </div>
-                <!-- </div>
-              <div class="row"> -->
-                <div class="column" style="width: 75%">
-                  <div>
-                    <label class="tooltip"
-                      >New:<span class="tooltiptext">{{
-                        newOrExistingToolTip
-                      }}</span
-                      ><input
-                        type="checkbox"
-                        v-model="addNewComplexTermSelected"
-                    /></label>
+                <div class="panel large">
+                  <label class="tooltip">
+                    New:
+                    <span class="tooltiptext">{{ newOrExistingToolTip }}</span>
+                    <input type="checkbox" v-model="addNewComplexTermSelected" />
+                  </label>
+                  <div class="button-row">
                     <button @click="addTerm('Complex')">Add</button>
                     <button @click="reset('Complex')">Reset</button>
                   </div>
                 </div>
               </div>
             </fieldset>
-          </div>
+          </section>
         </div>
-        <div class="row">
-          <fieldset>
-            <legend>Scratch Pad:</legend>
-            <div class="column" style="width: 68%">
-              <textarea
-                id="scratchpad"
-                :value="formattedListOfTerms"
-                ref="scratchpad"
-                readonly="readonly"
-                @select="setPolynomial"
-              ></textarea>
-            </div>
-            <div class="column" style="width: 32%">
+        <!-- SCRATCHPAD + DOMAIN -->
+        <fieldset>
+          <legend>Scratch Pad:</legend>
+          <div class="layout">
+            <section class="panel scratchpad-panel">
+              <textarea id="scratchpad" :value="formattedListOfTerms" ref="scratchpad" readonly
+                @select="setPolynomial"></textarea>
+            </section>
+            <section class="panel domain-panel">
               <fieldset>
                 <legend>Select Input Domain:</legend>
-                <div>
-                  <label for="low">Low x value: </label>
-                  <input
-                    type="number"
-                    id="low"
-                    min="-10e10"
-                    max="10e10"
-                    v-model="polynomial.lowX"
-                  />
-                </div>
-                <div>
-                  <label for="high">High x value: </label>
-                  <input
-                    type="number"
-                    id="high"
-                    min="-10e10"
-                    max="10e10"
-                    v-model="polynomial.highX"
-                  />
-                </div>
+                <label for="low">Low x value:</label>
+                <input type="number" id="low" v-model="polynomial.lowX" />
+                <label for="high">High x value:</label>
+                <input type="number" id="high" v-model="polynomial.highX" />
               </fieldset>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Plot and Play:</legend>
-            <div class="column" style="width: 50%">
-              <div>
-                <label class="tooltip">
-                  <strong>&#x222b; dx:</strong>
-                  <span class="tooltiptext">{{
-                    calculateAreaUnderToolTip
-                  }}</span
-                  ><input
-                    type="checkbox"
-                    v-model="calculateAreaUnderSelected" /></label
-                >&nbsp;
-                <label class="tooltip">
-                  <strong>dy/dx:</strong>
-                  <span class="tooltiptext">{{ slopeFunctionToolTip }}</span
-                  ><input type="checkbox" v-model="slopeFunctionSelected"
-                /></label>
-              </div>
+            </section>
+          </div>
+        </fieldset>
+        <!-- PLOT + RESULTS -->
+        <fieldset>
+          <legend>Plot and Play:</legend>
+          <div class="layout">
+            <section class="panel plot-controls">
+              <label class="tooltip">
+                <strong>&#x222b; dx:</strong>
+                <span class="tooltiptext">{{ calculateAreaUnderToolTip }}</span>
+                <input type="checkbox" v-model="calculateAreaUnderSelected" />
+              </label>
+              <label class="tooltip">
+                <strong>dy/dx:</strong>
+                <span class="tooltiptext">{{ slopeFunctionToolTip }}</span>
+                <input type="checkbox" v-model="slopeFunctionSelected" />
+              </label>
               <div>
                 <button @click="plot">Plot Function</button>
-                &nbsp;
-                <label class="tooltip" for="functionColor"
-                  ><strong>f(x): </strong
-                  ><span class="tooltiptext">{{ color1ToolTip }}</span></label
-                ><input id="functionColor" type="color" v-model="color1" />
-                &nbsp;<label class="tooltip" for="dervivativeColor"
-                  ><strong>f'(x): </strong
-                  ><span class="tooltiptext">{{ color2ToolTip }}</span></label
-                ><input
-                  id="dervivativeColor"
-                  :disabled="!slopeFunctionSelected"
-                  type="color"
-                  v-model="color2"
-                />
+                <label class="tooltip" for="functionColor">
+                  <strong>f(x):</strong>
+                  <span class="tooltiptext">{{ color1ToolTip }}</span>
+                </label>
+                <input id="functionColor" type="color" v-model="color1" />
+                <label class="tooltip" for="derivativeColor">
+                  <strong>f'(x):</strong>
+                  <span class="tooltiptext">{{ color2ToolTip }}</span>
+                </label>
+                <input id="derivativeColor" type="color" :disabled="!slopeFunctionSelected" v-model="color2" />
               </div>
               <div>
                 <button @click="zoomIn">Zoom ++</button>
                 <button @click="zoomOut">Zoom --</button>
                 <button @click="clear">Clear Out Everything</button>
               </div>
-            </div>
-            <div class="column" style="width: 40%">
-              <textarea
-                id="results"
-                :value="resultMsg"
-                ref="results"
-                readonly="readonly"
-              ></textarea>
-            </div>
-          </fieldset>
-        </div>
+            </section>
+            <section class="panel results-panel">
+              <textarea id="results" :value="resultMsg" ref="results" readonly></textarea>
+            </section>
+          </div>
+        </fieldset>
       </form>
     </fieldset>
-    <!-- </div> -->
   </section>
 </template>
 <script>
@@ -244,7 +166,6 @@ export default {
     resultMsg: function () {
       let e = this.result.expKey;
       let a = this.result.area === null ? "NA" : this.result.area.toFixed(1);
-      //let d = !this.slopeFunctionSelected ? "f'(x): NA" : "f'(x) in red";
       if (e.length) {
         return `Domain: ${this.polynomial.lowX} <= x <= ${this.polynomial.highX}\nf(x): ${e}\n\u222bf(x)dx: ${a}\nUse the color scheme to identify f(x) and f'(x)\n`;
       }
@@ -258,7 +179,6 @@ export default {
   },
   data: function () {
     return {
-      errorMsg: null,
       result: { expKey: "", area: null, derivative: null },
       padding: 3,
       newOrExistingToolTip: "Add new or append to existing expression",
@@ -292,10 +212,8 @@ export default {
       color2: "#ff0000",
     };
   },
-
   methods: {
     setPolynomial: function (event) {
-      //console.log("Setting ploynomial");
       let input = event.target;
       let start = input.selectionStart;
 
@@ -311,17 +229,13 @@ export default {
           sel = input.value.substr(i, "Expr".length + this.padding);
           i--;
         } while (!/Expr\d+/.test(sel));
-        //console.log("sel: " + sel);
 
-        //console.dir(input);
         this.selectText(this.$refs["scratchpad"], sel);
       }
       let res = sel.match(/Expr(\d+)/);
-      //console.log("res:" + res);
 
       this.polynomial.terms = [...this.listOfTerms[Number(res[1]) - 1]];
     },
-
     reset: function (type) {
       if (type === SIMPLE) {
         this.simpleTerm.coefficient = 1;
@@ -342,18 +256,16 @@ export default {
       this.polynomial.lowX = -10;
       this.polynomial.highX = 10;
     },
-
     clear: function () {
       this.$emit("receive-clear");
       this.reset(SIMPLE);
-      this.reset(SIMPLE);
+      this.reset(COMPLEX);
       this.color1 = "#000000";
       this.color2 = "#ff0000";
       this.result.expKey = "";
       this.result.area = null;
       this.result.derivative = null;
     },
-
     plot: function () {
       this.$emit(
         "receive-function-to-plot",
@@ -363,43 +275,38 @@ export default {
         this.color1,
         this.color2
       );
-      //console.log(this.polynomial.terms.length);
-
       this.result.expKey = this.polynomial.terms
         .map((i) => this.formatTerm(i))
         .join(" + ");
       if (this.calculateAreaUnderSelected) this.result.area = this.area;
     },
-
     zoomIn: function () {
       this.$emit("receive-zoom", 1);
     },
-
     zoomOut: function () {
       this.$emit("receive-zoom", -1);
     },
-
     addTerm: function (type) {
       const termToBeAdded =
         type === SIMPLE
           ? {
-              type: type,
-              coefficient: this.simpleTerm.coefficient,
-              degree: this.simpleTerm.degree,
-            }
+            type: type,
+            coefficient: this.simpleTerm.coefficient,
+            degree: this.simpleTerm.degree,
+          }
           : {
-              type: type,
-              degree: this.complexTerm.degree,
-              argument: [...this.complexTerm.argument],
-              multiplier: [...this.complexTerm.multiplier],
-              function: this.complexTerm.function,
-            };
+            type: type,
+            degree: this.complexTerm.degree,
+            argument: [...this.complexTerm.argument],
+            multiplier: [...this.complexTerm.multiplier],
+            function: this.complexTerm.function,
+          };
 
       const addNew =
         type === SIMPLE
           ? this.addNewSimpleTermSelected
           : this.addNewComplexTermSelected;
-      //console.log(termToBeAdded);
+
       if (this.listOfTerms.length > 0 && !addNew) {
         this.listOfTerms[this.listOfTerms.length - 1].push(termToBeAdded);
       } else {
@@ -407,11 +314,9 @@ export default {
       }
       this.reset(type);
     },
-
     builtInFunctionChanged: function (event) {
       this.complexTerm.function = this.allFunctions[event.target.selectedIndex];
     },
-
     multiplierChanged: function (event) {
       let text = `Expr${this.zeroFill(event.target.selectedIndex + 1)}`;
       this.selectText(this.$refs["scratchpad"], text);
@@ -419,7 +324,6 @@ export default {
         ...this.listOfTerms[event.target.selectedIndex],
       ];
     },
-
     argumentChanged: function (event) {
       let text = `Expr${this.zeroFill(event.target.selectedIndex + 1)}`;
       this.selectText(this.$refs["scratchpad"], text);
@@ -427,40 +331,38 @@ export default {
         ...this.listOfTerms[event.target.selectedIndex],
       ];
     },
-
-    formatTerm: function (obj) {
-      if (obj.type === SIMPLE) {
-        if (obj.degree === 0) {
-          return `${obj.coefficient}`;
-        }
-        return `${obj.coefficient < 0 ? "-" : ""}${
-          Math.abs(obj.coefficient) !== 1 ? Math.abs(obj.coefficient) : ""
-        }x${obj.degree !== 1 ? "^" + obj.degree : ""}`;
-      } else {
-        const m = obj.multiplier;
-        const a = obj.argument;
-
-        let s = `${obj.degree !== 1 ? "(" : ""}`;
-        for (let i = 0; i < m.length; i++) {
-          s = s.concat(this.formatTerm(m[i]));
-          if (m.length - i > 1) s = s.concat(" + ");
-        }
-        s = s.concat(`${obj.function}(`);
-        for (let i = 0; i < a.length; i++) {
-          s = s.concat(this.formatTerm(a[i]));
-          if (a.length - i > 1) s = s.concat(" + ");
-        }
-        s = s.concat(")");
-        s = s.concat(`${obj.degree !== 1 ? ")^" + obj.degree : ""}`);
-        return s;
-      }
+    formatTerm(obj) {
+      return obj.type === SIMPLE
+        ? this.formatSimple(obj)
+        : this.formatComposite(obj);
     },
+    formatSimple(obj) {
+      if (obj.degree === 0) {
+        return `${obj.coefficient}`;
+      }
+      const sign = obj.coefficient < 0 ? "-" : "";
+      const coeff = Math.abs(obj.coefficient) === 1 ? "" : Math.abs(obj.coefficient);
+      const degree = obj.degree === 1 ? "" : `^${obj.degree}`;
+      return `${sign}${coeff}x${degree}`;
+    },
+    formatComposite(obj) {
+      const multiplier = this.joinTerms(obj.multiplier);
+      const argument = this.joinTerms(obj.argument);
+      const open = obj.degree === 1 ? "" : "(";
+      const close = obj.degree === 1 ? "" : `)^${obj.degree}`;
+      const fn = obj.function === "pow"
+        ? `${obj.function}(x, `
+        : `${obj.function}(`;
 
+      return `${open}${multiplier} ${fn}${argument})${close}`;
+    },
+    joinTerms(list) {
+      return list.map(t => this.formatTerm(t)).join(" + ");
+    },
     zeroFill: function (number) {
-      var zeroes = new Array(this.padding + 1).join("0");
+      let zeroes = new Array(this.padding + 1).join("0");
       return (zeroes + number).slice(-this.padding) + "";
     },
-
     selectText: function (input, text) {
       const start = input.value.indexOf(text);
 
@@ -481,105 +383,182 @@ export default {
 };
 </script>
 <style scoped>
-.alert {
-  padding: 20px;
-  background-color: #f44336;
-  color: white;
-  width: 30%;
-  margin: auto;
+/* Screen-reader-only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.closebtn {
-  margin-left: 15px;
-  color: white;
-  font-weight: bold;
-  float: right;
-  font-size: 22px;
-  line-height: 20px;
-  cursor: pointer;
-  transition: 0.3s;
+/* FLEXBOX LAYOUT */
+.layout {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.closebtn:hover {
-  color: black;
+.panel {
+  flex: 1;
 }
+
+/* Match original proportions */
+.simple-term-panel {
+  flex: 0 0 35%;
+}
+
+.complex-term-panel {
+  flex: 0 0 61%;
+}
+
+.scratchpad-panel {
+  flex: 0 0 68%;
+}
+
+.domain-panel {
+  flex: 0 0 32%;
+}
+
+.plot-controls {
+  flex: 0 0 50%;
+}
+
+.results-panel {
+  flex: 0 0 40%;
+}
+
+/* FIELDSETS */
+fieldset {
+  width: 100%;
+  border: 1px solid #d0d7de;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  padding: 0 0.25rem;
+}
+
+/* LABELS */
+label {
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+
+/* TOOLTIP */
 .tooltip {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
-  background-color: black;
+  width: max-content;
+  max-width: 180px;
+  background-color: #000;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
 
-  /* Position the tooltip */
   position: absolute;
-  left: 20px;
-  bottom: 20px;
-  z-index: 1;
+  left: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  z-index: 10;
+
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+  opacity: 1;
 }
 
-fieldset {
-  width: 90%;
-  border: solid 1px blue;
-  background-color: yellow !important;
-}
-
-legend {
-  text-align: left;
-  font-size: small;
-  color: blue;
-}
-
-label {
-  font-size: small;
-  color: blue;
-}
-
-div {
-  text-align: left;
-}
-
+/* BUTTONS */
 button {
-  background-color: aqua;
+  background-color: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
+button:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* SELECT OPTIONS */
 select option {
-  background-color: #aa99bb;
+  background-color: #f3f4f6;
+  /* soft gray */
+  color: #111827;
+  /* deep gray */
+}
+
+/* TEXTAREAS */
+#scratchpad,
+#results {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 0.9rem;
+  resize: none;
 }
 
 #scratchpad {
-  width: 360px;
   height: 110px;
-  padding: 6px 10px;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  font-size: 14px;
-  --font-style: italic;
-  resize: none;
+  font-style: italic;
 }
 
 #results {
-  width: 262px;
   height: 100px;
-  padding: 6px 10px;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
+  color: red;
+}
+
+/* ALERT (unchanged except modernized spacing) */
+.alert {
+  padding: 1rem;
+  background-color: #d32f2f;
+  color: white;
+  width: 30%;
+  margin: 1rem auto;
   border-radius: 4px;
-  background-color: #f8f8f8;
-  font-size: 14px;
-  resize: none;
-  --color: red;
+}
+
+.closebtn {
+  margin-left: 1rem;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.closebtn:hover {
+  color: black;
 }
 </style>

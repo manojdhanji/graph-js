@@ -1,10 +1,8 @@
 <template>
-  <canvas
-    id="myCanvas"
-    :width="xLength"
-    :height="yLength"
-    ref="canvas"
-  ></canvas>
+
+  <canvas id="myCanvas" :width="xLength" :height="yLength" ref="canvas">
+    Your browser does not support HTML canvas. The graph cannot be displayed.
+  </canvas>
 </template>
 <script>
 const dx = 0.01;
@@ -59,33 +57,53 @@ export default {
       });
     },
     fx: function (x, terms) {
-      let y = 0.0;
+      let y = 0;
+
       for (const t of terms) {
-        if (t.type === "Simple") {
-          y += t.coefficient * Math.pow(x, t.degree);
-        } else {
-          const trigBuiltInFunc = this.builtInFunctions.trigFunctions.find(
-            (f) => f.key === t.function
-          );
-          if (trigBuiltInFunc) {
-            y +=
-              this.fx(x, t.multiplier) *
-              trigBuiltInFunc.value(this.fx(x, t.argument));
-          }
-          const expBuiltInFunc = this.builtInFunctions.expFunctions.find(
-            (f) => f.key === t.function
-          );
-          if (expBuiltInFunc) {
-            y +=
-              this.fx(x, t.multiplier) *
-              expBuiltInFunc.value(this.fx(x, t.argument));
-          }
-          y = Math.pow(y, t.degree);
-        }
+        y += t.type === "Simple"
+          ? this.evalSimpleTerm(x, t)
+          : this.evalCompositeTerm(x, t);
       }
-      if (isNaN(y) || !isFinite(y)) throw { msg: "NaN" };
-      //console.log("x, y: ", x, y);
+
+      if (!Number.isFinite(y)) {
+        throw new RangeError("Function evaluation resulted in NaN");
+      }
+
       return y;
+    },
+    evalSimpleTerm: function (x, term) {
+      return term.coefficient * Math.pow(x, term.degree);
+    },
+    evalCompositeTerm: function (x, term) {
+      const multiplierValue = this.fx(x, term.multiplier);
+      const argumentValue = this.fx(x, term.argument);
+
+      const trigFunc = this.findTrigFunction(term.function);
+      if (trigFunc) {
+        return Math.pow(
+          multiplierValue * trigFunc(argumentValue),
+          term.degree
+        );
+      }
+
+      const expFunc = this.findExpFunction(term.function)
+      if (expFunc) {
+        const base = term.function === "pow"
+          ? expFunc(x, argumentValue)
+          : expFunc(argumentValue);
+
+        return Math.pow(multiplierValue * base, term.degree);
+      }
+
+      return 0;
+    },
+    findTrigFunction: function (name) {
+      const f = this.builtInFunctions.trigFunctions.find(fn => fn.key === name);
+      return f ? f.value : null;
+    },
+    findExpFunction: function (name) {
+      const f = this.builtInFunctions.expFunctions.find(fn => fn.key === name);
+      return f ? f.value : null;
     },
     tuple: function (x) {
       return { x: x, y: this.fx(x, this.polynomial.terms) };
@@ -99,14 +117,11 @@ export default {
       return midY - y * this.scaleFactor;
     },
     plot: function () {
-      //const midX = this.xLength / 2;
-      //const midY = this.yLength / 2;
       const ctx = this.$refs.canvas.getContext("2d");
-
       ctx.lineWidth = 1;
-      //console.dir(this.polynomial);
+
       if (this.polynomial.terms.length > 0) {
-        let area = 0.0;
+        let area = 0;
 
         for (
           let i = this.polynomial.lowX;
@@ -146,10 +161,9 @@ export default {
               ctx.stroke();
             }
           } catch (e) {
-            //console.error(e.msg);
+            console.error(e.msg);
           }
         }
-        //console.log("area: " + area);
         if (this.calculateAreaUnderSelected)
           this.$emit("receive-area-calculated", area);
       }
@@ -175,7 +189,9 @@ export default {
 };
 </script>
 <style scoped>
-#canvas {
+#myCanvas {
+  max-width: 100%;
+  height: auto;
   border: 1px solid #d3d3d3;
 }
 </style>

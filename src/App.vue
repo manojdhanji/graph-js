@@ -1,28 +1,21 @@
 <template>
-  <div class="row">
-    <div class="column" style="width: 40%">
-      <InputFunction
-        :builtInFunctions="builtInFunctions"
-        :area="area"
-        @receive-function-to-plot="receiveFunction"
-        @receive-zoom="zoom"
-        @receive-clear="clear"
-      />
-    </div>
-    <div class="column" style="width: 60%">
-      <CartesianPlane
-        :polynomial="polynomial"
-        :calculateAreaUnderSelected="calculateAreaUnderSelected"
-        :slopeFunctionSelected="slopeFunctionSelected"
-        :color1="color1"
-        :color2="color2"
-        :builtInFunctions="builtInFunctions"
-        :zoom="inOut"
-        :clearFlag="clearFlag"
-        @receive-area-calculated="areaUnderFunction"
-      />
-    </div>
-  </div>
+  <main class="layout">
+    <section class="input-panel" aria-labelledby="input-heading">
+      <h2 id="input-heading" class="sr-only">Function Input Panel</h2>
+
+      <InputFunction :builtInFunctions="builtInFunctions" :area="area" @receive-function-to-plot="receiveFunction"
+        @receive-zoom="zoom" @receive-clear="clear" />
+    </section>
+
+    <section class="graph-panel" aria-labelledby="graph-heading">
+      <h2 id="graph-heading" class="sr-only">Graph Display Panel</h2>
+
+      <CartesianPlane :polynomial="polynomial" :calculateAreaUnderSelected="calculateAreaUnderSelected"
+        :slopeFunctionSelected="slopeFunctionSelected" :color1="color1" :color2="color2"
+        :builtInFunctions="builtInFunctions" :zoom="inOut" :clearFlag="clearFlag"
+        @receive-area-calculated="areaUnderFunction" />
+    </section>
+  </main>
 </template>
 
 <script>
@@ -31,7 +24,6 @@ import InputFunction from "./components/InputFunction.vue";
 
 export default {
   name: "Graph-Plotter",
-
   data: function () {
     return {
       inOut: 0,
@@ -55,6 +47,7 @@ export default {
           { key: "ln", value: Math.log },
           { key: "log", value: Math.log10 },
           { key: "exp", value: Math.exp },
+          { key: "pow", value: Math.pow },
         ],
       },
     };
@@ -98,23 +91,42 @@ export default {
 </script>
 
 <style>
+/* Global box sizing */
 * {
   box-sizing: border-box;
 }
 
-.column {
-  float: left;
-  width: 50%;
-  padding: 2px;
+/* Screen-reader-only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* Clearfix (clear floats) */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
+/* Flexbox layout replacing .row + .column floats */
+.layout {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
 }
 
+/* Left panel (InputFunction) */
+.input-panel {
+  flex: 0 0 40%; /* matches your original width: 40% */
+}
+
+/* Right panel (CartesianPlane) */
+.graph-panel {
+  flex: 0 0 60%; /* matches your original width: 60% */
+}
+
+/* Original global app styles — keep them */
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
